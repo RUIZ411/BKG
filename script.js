@@ -1,5 +1,8 @@
 function goPage(id) {
-  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
   document.getElementById(id).classList.add("active");
   window.scrollTo(0, 0);
 }
@@ -29,12 +32,9 @@ makeInputs("baramBInputs", 10);
 makeInputs("watchInputs", 12);
 makeInputs("chessInputs", 8);
 
-function shuffleArray(arr) {
-  return [...arr].sort(() => Math.random() - 0.5);
-}
-
-function makeSafeTeamsByRows(inputId, teamSize) {
+function makeFixedRowTeams(inputId, teamSize) {
   const inputs = [...document.querySelectorAll(`#${inputId} input`)];
+
   const names = inputs.map(input => input.value.trim()).filter(Boolean);
 
   if (names.length !== teamSize * 2) {
@@ -42,7 +42,7 @@ function makeSafeTeamsByRows(inputId, teamSize) {
     return null;
   }
 
-  const pairs = [];
+  const rows = [];
 
   for (let i = 0; i < inputs.length; i += 2) {
     const left = inputs[i].value.trim();
@@ -53,47 +53,38 @@ function makeSafeTeamsByRows(inputId, teamSize) {
       return null;
     }
 
-    pairs.push([left, right]);
+    if (Math.random() < 0.5) {
+      rows.push([left, right]);
+    } else {
+      rows.push([right, left]);
+    }
   }
 
-  const shuffledPairs = shuffleArray(pairs);
-
-  const teamA = [];
-  const teamB = [];
-
-  shuffledPairs.forEach(pair => {
-    if (Math.random() < 0.5) {
-      teamA.push(pair[0]);
-      teamB.push(pair[1]);
-    } else {
-      teamA.push(pair[1]);
-      teamB.push(pair[0]);
-    }
-  });
-
-  return { teamA, teamB };
+  return rows;
 }
 
 function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
-  const result = makeSafeTeamsByRows(inputId, teamSize);
-  if (!result) return;
-
-  const { teamA, teamB } = result;
+  const rows = makeFixedRowTeams(inputId, teamSize);
+  if (!rows) return;
 
   document.getElementById(resultId).innerHTML = `
-    <div class="team-box">
-      <h4>${teamAName}</h4>
-      ${teamA.map(name => `<div class="result-name">${name}</div>`).join("")}
-    </div>
-    <div class="team-box">
-      <h4>${teamBName}</h4>
-      ${teamB.map(name => `<div class="result-name">${name}</div>`).join("")}
+    <div class="team-result-table">
+      <div class="team-result-head">${teamAName}</div>
+      <div class="team-result-head">${teamBName}</div>
+
+      ${rows.map(row => `
+        <div class="result-name">${row[0]}</div>
+        <div class="result-name">${row[1]}</div>
+      `).join("")}
     </div>
   `;
 }
 
 function resetTool(inputId, resultId) {
-  document.querySelectorAll(`#${inputId} input`).forEach(input => input.value = "");
+  document.querySelectorAll(`#${inputId} input`).forEach(input => {
+    input.value = "";
+  });
+
   document.getElementById(resultId).innerHTML = "";
 }
 
@@ -134,7 +125,13 @@ function renderMaps() {
     wrap.className = "map-category";
 
     wrap.innerHTML = `
-      <h4><label><input type="checkbox" checked class="category-check"> ${category}</label></h4>
+      <h4>
+        <label>
+          <input type="checkbox" checked class="category-check">
+          ${category}
+        </label>
+      </h4>
+
       <div class="map-items">
         ${list.map(map => `
           <label>
@@ -206,18 +203,13 @@ function renderRankScores() {
 
 renderRankScores();
 
-let chessTeams = {
-  A: [],
-  B: []
-};
+let chessRows = [];
 
 function shuffleChess() {
-  const result = makeSafeTeamsByRows("chessInputs", 4);
-  if (!result) return;
+  const rows = makeFixedRowTeams("chessInputs", 4);
+  if (!rows) return;
 
-  chessTeams.A = result.teamA;
-  chessTeams.B = result.teamB;
-
+  chessRows = rows;
   renderChessResult();
 }
 
@@ -225,29 +217,31 @@ function renderChessResult() {
   const box = document.getElementById("chessResult");
 
   box.innerHTML = `
-    <div class="team-box">
-      <h4>팀 A</h4>
-      ${chessTeams.A.map(name => playerRankHtml("A", name)).join("")}
-    </div>
-    <div class="team-box">
-      <h4>팀 B</h4>
-      ${chessTeams.B.map(name => playerRankHtml("B", name)).join("")}
+    <div class="chess-result-table">
+      <div class="team-result-head">팀 A</div>
+      <div class="team-result-head">팀 B</div>
+
+      ${chessRows.map(row => `
+        <div class="player-rank">
+          <input value="${row[0]}" readonly>
+          <select data-team="A" onchange="calculateChessScore()">
+            <option value="">-</option>
+            ${[1,2,3,4,5,6,7,8].map(rank => `<option value="${rank}">${rank}등</option>`).join("")}
+          </select>
+        </div>
+
+        <div class="player-rank">
+          <input value="${row[1]}" readonly>
+          <select data-team="B" onchange="calculateChessScore()">
+            <option value="">-</option>
+            ${[1,2,3,4,5,6,7,8].map(rank => `<option value="${rank}">${rank}등</option>`).join("")}
+          </select>
+        </div>
+      `).join("")}
     </div>
   `;
 
   calculateChessScore();
-}
-
-function playerRankHtml(team, name) {
-  return `
-    <div class="player-rank">
-      <input value="${name}" readonly>
-      <select data-team="${team}" onchange="calculateChessScore()">
-        <option value="">-</option>
-        ${[1,2,3,4,5,6,7,8].map(rank => `<option value="${rank}">${rank}등</option>`).join("")}
-      </select>
-    </div>
-  `;
 }
 
 function calculateChessScore() {
@@ -260,7 +254,8 @@ function calculateChessScore() {
 
     if (!rank) return;
 
-    const score = Number(document.getElementById(`rankScore${rank}`).value) || 0;
+    const scoreInput = document.getElementById(`rankScore${rank}`);
+    const score = Number(scoreInput.value) || 0;
 
     if (team === "A") teamA += score;
     if (team === "B") teamB += score;
@@ -271,7 +266,11 @@ function calculateChessScore() {
 }
 
 function resetChess() {
-  document.querySelectorAll("#chessInputs input").forEach(input => input.value = "");
+  document.querySelectorAll("#chessInputs input").forEach(input => {
+    input.value = "";
+  });
+
+  chessRows = [];
 
   document.getElementById("chessResult").innerHTML = "";
   document.getElementById("teamAScore").textContent = "0점";
