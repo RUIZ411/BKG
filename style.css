@@ -473,3 +473,13 @@ body.light .map-category {
     letter-spacing: -8px;
   }
 }
+select option {
+  background: #111827;
+  color: #ffffff;
+}
+
+body.light select option {
+  background: #ffffff;
+  color: #0f172a;
+}
+
