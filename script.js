@@ -1,3 +1,25 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAfxJeko53d10OcJZps3my5Fm7XF_2fDtc",
+  authDomain: "bkg-chess.firebaseapp.com",
+  databaseURL: "https://bkg-chess-default-rtdb.firebaseio.com",
+  projectId: "bkg-chess",
+  storageBucket: "bkg-chess.firebasestorage.app",
+  messagingSenderId: "379861379276",
+  appId: "1:379861379276:web:bf48aa09710d0c77223a69",
+  measurementId: "G-EN9D9XZBBP"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 function goPage(id) {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
@@ -34,7 +56,6 @@ makeInputs("chessInputs", 8);
 
 function makeFixedRowTeams(inputId, teamSize) {
   const inputs = [...document.querySelectorAll(`#${inputId} input`)];
-
   const names = inputs.map(input => input.value.trim()).filter(Boolean);
 
   if (names.length !== teamSize * 2) {
@@ -102,22 +123,34 @@ function copyResult(resultId) {
   const names = [...resultBox.querySelectorAll(".result-name")]
     .map(el => el.innerText.trim());
 
-  if (heads.length < 2 || names.length < 2) {
-    navigator.clipboard.writeText(resultBox.innerText.trim());
+  if (heads.length >= 2 && names.length >= 2) {
+    let copyText = `${heads[0]}\t${heads[1]}\n`;
+
+    for (let i = 0; i < names.length; i += 2) {
+      copyText += `${names[i] || ""}\t${names[i + 1] || ""}\n`;
+    }
+
+    navigator.clipboard.writeText(copyText.trim());
     alert("복사되었습니다.");
     return;
   }
 
-  const leftTitle = heads[0];
-  const rightTitle = heads[1];
+  const chessInputs = [...resultBox.querySelectorAll(".player-rank input")]
+    .map(input => input.value.trim());
 
-  let copyText = `${leftTitle}\t${rightTitle}\n`;
+  if (heads.length >= 2 && chessInputs.length >= 2) {
+    let copyText = `${heads[0]}\t${heads[1]}\n`;
 
-  for (let i = 0; i < names.length; i += 2) {
-    copyText += `${names[i] || ""}\t${names[i + 1] || ""}\n`;
+    for (let i = 0; i < chessInputs.length; i += 2) {
+      copyText += `${chessInputs[i] || ""}\t${chessInputs[i + 1] || ""}\n`;
+    }
+
+    navigator.clipboard.writeText(copyText.trim());
+    alert("복사되었습니다.");
+    return;
   }
 
-  navigator.clipboard.writeText(copyText.trim());
+  navigator.clipboard.writeText(resultBox.innerText.trim());
   alert("복사되었습니다.");
 }
 
@@ -204,6 +237,10 @@ const defaultRankScore = {
   8: 1
 };
 
+let chessRows = [];
+let chessRanks = {};
+let chessRankScores = { ...defaultRankScore };
+
 function renderRankScores() {
   const box = document.getElementById("rankScores");
   box.innerHTML = "";
@@ -214,7 +251,12 @@ function renderRankScores() {
 
     row.innerHTML = `
       <strong>${i}등</strong>
-      <input type="number" id="rankScore${i}" value="${defaultRankScore[i]}" oninput="calculateChessScore()">
+      <input
+        type="number"
+        id="rankScore${i}"
+        value="${chessRankScores[i] ?? defaultRankScore[i]}"
+        oninput="saveRankScores()"
+      >
       <span>점</span>
     `;
 
@@ -222,40 +264,61 @@ function renderRankScores() {
   }
 }
 
-renderRankScores();
+function saveRankScores() {
+  const scores = {};
 
-let chessRows = [];
+  for (let i = 1; i <= 8; i++) {
+    const input = document.getElementById(`rankScore${i}`);
+    scores[i] = Number(input.value) || 0;
+  }
+
+  set(ref(db, "gongchess/rankScores"), scores);
+}
 
 function shuffleChess() {
   const rows = makeFixedRowTeams("chessInputs", 4);
   if (!rows) return;
 
-  chessRows = rows;
-  renderChessResult();
+  set(ref(db, "gongchess/rows"), rows);
+  set(ref(db, "gongchess/ranks"), {});
 }
 
 function renderChessResult() {
   const box = document.getElementById("chessResult");
+
+  if (!chessRows || chessRows.length === 0) {
+    box.innerHTML = "";
+    calculateChessScore();
+    return;
+  }
 
   box.innerHTML = `
     <div class="chess-result-table">
       <div class="team-result-head">팀 A</div>
       <div class="team-result-head">팀 B</div>
 
-      ${chessRows.map(row => `
+      ${chessRows.map((row, rowIndex) => `
         <div class="player-rank">
           <input value="${row[0]}" readonly>
-          <select data-team="A" onchange="calculateChessScore()">
+          <select data-team="A" data-row="${rowIndex}" onchange="saveChessRank(this)">
             <option value="">-</option>
-            ${[1,2,3,4,5,6,7,8].map(rank => `<option value="${rank}">${rank}등</option>`).join("")}
+            ${[1,2,3,4,5,6,7,8].map(rank => `
+              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.A || "") === String(rank) ? "selected" : ""}>
+                ${rank}등
+              </option>
+            `).join("")}
           </select>
         </div>
 
         <div class="player-rank">
           <input value="${row[1]}" readonly>
-          <select data-team="B" onchange="calculateChessScore()">
+          <select data-team="B" data-row="${rowIndex}" onchange="saveChessRank(this)">
             <option value="">-</option>
-            ${[1,2,3,4,5,6,7,8].map(rank => `<option value="${rank}">${rank}등</option>`).join("")}
+            ${[1,2,3,4,5,6,7,8].map(rank => `
+              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.B || "") === String(rank) ? "selected" : ""}>
+                ${rank}등
+              </option>
+            `).join("")}
           </select>
         </div>
       `).join("")}
@@ -263,6 +326,14 @@ function renderChessResult() {
   `;
 
   calculateChessScore();
+}
+
+function saveChessRank(select) {
+  const row = select.dataset.row;
+  const team = select.dataset.team;
+  const value = select.value;
+
+  set(ref(db, `gongchess/ranks/${row}/${team}`), value);
 }
 
 function calculateChessScore() {
@@ -275,8 +346,7 @@ function calculateChessScore() {
 
     if (!rank) return;
 
-    const scoreInput = document.getElementById(`rankScore${rank}`);
-    const score = Number(scoreInput.value) || 0;
+    const score = Number(chessRankScores[rank]) || 0;
 
     if (team === "A") teamA += score;
     if (team === "B") teamB += score;
@@ -291,9 +361,36 @@ function resetChess() {
     input.value = "";
   });
 
-  chessRows = [];
-
-  document.getElementById("chessResult").innerHTML = "";
-  document.getElementById("teamAScore").textContent = "0점";
-  document.getElementById("teamBScore").textContent = "0점";
+  set(ref(db, "gongchess/rows"), []);
+  set(ref(db, "gongchess/ranks"), {});
 }
+
+renderRankScores();
+
+onValue(ref(db, "gongchess/rows"), snapshot => {
+  chessRows = snapshot.val() || [];
+  renderChessResult();
+});
+
+onValue(ref(db, "gongchess/ranks"), snapshot => {
+  chessRanks = snapshot.val() || {};
+  renderChessResult();
+});
+
+onValue(ref(db, "gongchess/rankScores"), snapshot => {
+  chessRankScores = snapshot.val() || { ...defaultRankScore };
+  renderRankScores();
+  calculateChessScore();
+});
+
+window.goPage = goPage;
+window.toggleTheme = toggleTheme;
+window.shuffleBasic = shuffleBasic;
+window.resetTool = resetTool;
+window.copyResult = copyResult;
+window.drawMap = drawMap;
+window.shuffleChess = shuffleChess;
+window.resetChess = resetChess;
+window.calculateChessScore = calculateChessScore;
+window.saveChessRank = saveChessRank;
+window.saveRankScores = saveRankScores;
