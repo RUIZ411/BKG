@@ -58,9 +58,9 @@ body.light .tool-page {
   box-shadow: 0 20px 70px rgba(15,23,42,.08);
 }
 
+button,
 .theme-btn,
-.back-btn,
-button {
+.back-btn {
   border: 1px solid rgba(148,163,184,.35);
   background: rgba(255,255,255,.08);
   color: inherit;
@@ -312,6 +312,37 @@ body.light .team-box {
   margin: 0 0 10px;
 }
 
+.team-result-table,
+.chess-result-table {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  width: 100%;
+}
+
+.team-result-head {
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 900;
+  text-align: center;
+  background: rgba(59,130,246,.16);
+  border: 1px solid rgba(148,163,184,.25);
+}
+
+.result-name {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(148,163,184,.14);
+  text-align: center;
+  font-weight: 800;
+}
+
+body.light .result-name {
+  background: #fff;
+}
+
 .map-box {
   max-height: 470px;
   overflow: auto;
@@ -355,7 +386,7 @@ body.light .map-category {
 }
 
 .mz-map {
-  color: #ef4444;
+  color: #ef4444 !important;
 }
 
 .mz-title {
@@ -385,7 +416,7 @@ body.light .map-category {
 
 .chess-result {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -393,7 +424,6 @@ body.light .map-category {
   display: grid;
   grid-template-columns: 1fr 80px;
   gap: 8px;
-  margin-bottom: 8px;
 }
 
 .score-total {
