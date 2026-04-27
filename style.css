@@ -36,12 +36,20 @@ body.light {
 .hero,
 .tool-page {
   position: relative;
-  min-height: calc(100vh - 48px);
   padding: 42px;
   border: 1px solid rgba(148,163,184,.25);
   border-radius: 28px;
   background: rgba(8,13,29,.72);
   box-shadow: 0 24px 80px rgba(0,0,0,.28);
+}
+
+.hero {
+  min-height: auto;
+  padding-bottom: 70px;
+}
+
+.tool-page {
+  min-height: calc(100vh - 48px);
 }
 
 body.light .hero,
@@ -117,7 +125,7 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
-  margin: 60px auto 0;
+  margin: 35px auto 0;
   max-width: 1050px;
 }
 
