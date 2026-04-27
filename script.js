@@ -1,8 +1,5 @@
 function goPage(id) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
-
+  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo(0, 0);
 }
@@ -36,14 +33,13 @@ function shuffleArray(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
-function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
+function makeSafeTeamsByRows(inputId, teamSize) {
   const inputs = [...document.querySelectorAll(`#${inputId} input`)];
-
   const names = inputs.map(input => input.value.trim()).filter(Boolean);
 
   if (names.length !== teamSize * 2) {
     alert(`${teamSize * 2}명을 모두 입력해야 합니다.`);
-    return;
+    return null;
   }
 
   const pairs = [];
@@ -51,13 +47,21 @@ function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
   for (let i = 0; i < inputs.length; i += 2) {
     const left = inputs[i].value.trim();
     const right = inputs[i + 1].value.trim();
+
+    if (!left || !right) {
+      alert("모든 줄의 좌우 플레이어를 입력해야 합니다.");
+      return null;
+    }
+
     pairs.push([left, right]);
   }
 
-  let teamA = [];
-  let teamB = [];
+  const shuffledPairs = shuffleArray(pairs);
 
-  pairs.forEach(pair => {
+  const teamA = [];
+  const teamB = [];
+
+  shuffledPairs.forEach(pair => {
     if (Math.random() < 0.5) {
       teamA.push(pair[0]);
       teamB.push(pair[1]);
@@ -67,17 +71,23 @@ function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
     }
   });
 
-  teamA = shuffleArray(teamA);
-  teamB = shuffleArray(teamB);
+  return { teamA, teamB };
+}
+
+function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
+  const result = makeSafeTeamsByRows(inputId, teamSize);
+  if (!result) return;
+
+  const { teamA, teamB } = result;
 
   document.getElementById(resultId).innerHTML = `
     <div class="team-box">
       <h4>${teamAName}</h4>
-      ${teamA.join("<br>")}
+      ${teamA.map(name => `<div class="result-name">${name}</div>`).join("")}
     </div>
     <div class="team-box">
       <h4>${teamBName}</h4>
-      ${teamB.join("<br>")}
+      ${teamB.map(name => `<div class="result-name">${name}</div>`).join("")}
     </div>
   `;
 }
@@ -202,19 +212,11 @@ let chessTeams = {
 };
 
 function shuffleChess() {
-  const names = [...document.querySelectorAll("#chessInputs input")]
-    .map(input => input.value.trim())
-    .filter(Boolean);
+  const result = makeSafeTeamsByRows("chessInputs", 4);
+  if (!result) return;
 
-  if (names.length !== 8) {
-    alert("8명을 모두 입력해야 합니다.");
-    return;
-  }
-
-  const mixed = shuffleArray(names);
-
-  chessTeams.A = mixed.slice(0, 4);
-  chessTeams.B = mixed.slice(4, 8);
+  chessTeams.A = result.teamA;
+  chessTeams.B = result.teamB;
 
   renderChessResult();
 }
@@ -225,18 +227,18 @@ function renderChessResult() {
   box.innerHTML = `
     <div class="team-box">
       <h4>팀 A</h4>
-      ${chessTeams.A.map((name, i) => playerRankHtml("A", i, name)).join("")}
+      ${chessTeams.A.map(name => playerRankHtml("A", name)).join("")}
     </div>
     <div class="team-box">
       <h4>팀 B</h4>
-      ${chessTeams.B.map((name, i) => playerRankHtml("B", i, name)).join("")}
+      ${chessTeams.B.map(name => playerRankHtml("B", name)).join("")}
     </div>
   `;
 
   calculateChessScore();
 }
 
-function playerRankHtml(team, index, name) {
+function playerRankHtml(team, name) {
   return `
     <div class="player-rank">
       <input value="${name}" readonly>
