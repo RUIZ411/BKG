@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>BKG</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>BKG</h1>
+    <button onclick="toggleTheme()">라이트 / 다크모드</button>
+  </header>
+
+  <div id="mainMenu">
+    <div class="menu-card" onclick="showPage('gongbaram')">공바람</div>
+    <div class="menu-card" onclick="showPage('gongwatch')">공버워치</div>
+    <div class="menu-card" onclick="showPage('gongchess')">공토체스</div>
+  </div>
+
+  <!-- 공바람 -->
+  <div id="gongbaram" class="page hidden">
+    <h2>공바람 5대5 팀 섞기</h2>
+    <div class="inputs" id="baramInputs"></div>
+    <button onclick="shuffleTeam('baramInputs','baramA','baramB',5)">팀 섞기</button>
+    <div class="result">
+      <div id="baramA"></div>
+      <div id="baramB"></div>
+    </div>
+  </div>
+
+  <!-- 공버워치 -->
+  <div id="gongwatch" class="page hidden">
+    <h2>공버워치 6대6 팀 섞기</h2>
+
+    <div class="layout">
+      <div>
+        <div class="inputs" id="watchInputs"></div>
+        <button onclick="shuffleTeam('watchInputs','watchA','watchB',6)">팀 섞기</button>
+        <div class="result">
+          <div id="watchA"></div>
+          <div id="watchB"></div>
+        </div>
+      </div>
+
+      <div>
+        <h3>맵 추첨기</h3>
+        <p class="mz">빨간 글씨는 MZ맵</p>
+
+        <div id="mapList"></div>
+
+        <button onclick="drawMap()">맵 추첨하기</button>
+        <div id="mapResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공토체스 -->
+  <div id="gongchess" class="page hidden">
+    <h2>공토체스 4대4 팀 섞기</h2>
+
+    <div class="layout">
+      <div>
+        <div class="inputs" id="chessInputs"></div>
+        <button onclick="shuffleTeam('chessInputs','chessA','chessB',4)">팀 섞기</button>
+        <div class="result">
+          <div id="chessA"></div>
+          <div id="chessB"></div>
+        </div>
+      </div>
+
+      <div>
+        <h3>점수판</h3>
+        <div id="scoreBoard"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
