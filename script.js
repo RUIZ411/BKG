@@ -1,5 +1,3 @@
-let currentTheme = "dark";
-
 function goPage(id) {
   document.querySelectorAll(".page").forEach(page => {
     page.classList.remove("active");
@@ -34,36 +32,52 @@ makeInputs("baramBInputs", 10);
 makeInputs("watchInputs", 12);
 makeInputs("chessInputs", 8);
 
-function getNames(inputId) {
-  return [...document.querySelectorAll(`#${inputId} input`)]
-    .map(input => input.value.trim())
-    .filter(Boolean);
-}
-
 function shuffleArray(arr) {
   return [...arr].sort(() => Math.random() - 0.5);
 }
 
 function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
-  const names = getNames(inputId);
+  const inputs = [...document.querySelectorAll(`#${inputId} input`)];
+
+  const names = inputs.map(input => input.value.trim()).filter(Boolean);
 
   if (names.length !== teamSize * 2) {
     alert(`${teamSize * 2}명을 모두 입력해야 합니다.`);
     return;
   }
 
-  const mixed = shuffleArray(names);
-  const teamA = mixed.slice(0, teamSize);
-  const teamB = mixed.slice(teamSize);
+  const pairs = [];
+
+  for (let i = 0; i < inputs.length; i += 2) {
+    const left = inputs[i].value.trim();
+    const right = inputs[i + 1].value.trim();
+    pairs.push([left, right]);
+  }
+
+  let teamA = [];
+  let teamB = [];
+
+  pairs.forEach(pair => {
+    if (Math.random() < 0.5) {
+      teamA.push(pair[0]);
+      teamB.push(pair[1]);
+    } else {
+      teamA.push(pair[1]);
+      teamB.push(pair[0]);
+    }
+  });
+
+  teamA = shuffleArray(teamA);
+  teamB = shuffleArray(teamB);
 
   document.getElementById(resultId).innerHTML = `
     <div class="team-box">
       <h4>${teamAName}</h4>
-      ${teamA.map((name, i) => `${i + 1}. ${name}`).join("<br>")}
+      ${teamA.join("<br>")}
     </div>
     <div class="team-box">
       <h4>${teamBName}</h4>
-      ${teamB.map((name, i) => `${i + 1}. ${name}`).join("<br>")}
+      ${teamB.join("<br>")}
     </div>
   `;
 }
@@ -122,6 +136,7 @@ function renderMaps() {
     `;
 
     const categoryCheck = wrap.querySelector(".category-check");
+
     categoryCheck.addEventListener("change", () => {
       wrap.querySelectorAll(".map-check").forEach(check => {
         check.checked = categoryCheck.checked;
@@ -168,11 +183,13 @@ function renderRankScores() {
   for (let i = 1; i <= 8; i++) {
     const row = document.createElement("div");
     row.className = "rank-row";
+
     row.innerHTML = `
       <strong>${i}등</strong>
       <input type="number" id="rankScore${i}" value="${defaultRankScore[i]}" oninput="calculateChessScore()">
       <span>점</span>
     `;
+
     box.appendChild(row);
   }
 }
@@ -185,7 +202,9 @@ let chessTeams = {
 };
 
 function shuffleChess() {
-  const names = getNames("chessInputs");
+  const names = [...document.querySelectorAll("#chessInputs input")]
+    .map(input => input.value.trim())
+    .filter(Boolean);
 
   if (names.length !== 8) {
     alert("8명을 모두 입력해야 합니다.");
@@ -193,6 +212,7 @@ function shuffleChess() {
   }
 
   const mixed = shuffleArray(names);
+
   chessTeams.A = mixed.slice(0, 4);
   chessTeams.B = mixed.slice(4, 8);
 
@@ -250,6 +270,7 @@ function calculateChessScore() {
 
 function resetChess() {
   document.querySelectorAll("#chessInputs input").forEach(input => input.value = "");
+
   document.getElementById("chessResult").innerHTML = "";
   document.getElementById("teamAScore").textContent = "0점";
   document.getElementById("teamBScore").textContent = "0점";
