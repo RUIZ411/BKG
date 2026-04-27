@@ -1,85 +1,170 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BKG</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <main class="app">
 
-<div class="container">
+    <!-- 메인 -->
+    <section id="home" class="page active">
+      <button class="theme-btn" onclick="toggleTheme()">🌙 다크모드</button>
 
-  <header>
-    <h1>BKG</h1>
-    <button onclick="toggleTheme()">라이트 / 다크모드</button>
-  </header>
+      <div class="hero">
+        <div class="mini-logo">BKG</div>
+        <h1>BKG</h1>
+        <h2>게임을 즐기는 새로운 방법</h2>
+        <p>원하는 메뉴를 선택해 바로 시작하세요.</p>
+      </div>
 
-  <div id="mainMenu">
-    <div class="menu-card" onclick="showPage('gongbaram')">공바람</div>
-    <div class="menu-card" onclick="showPage('gongwatch')">공버워치</div>
-    <div class="menu-card" onclick="showPage('gongchess')">공토체스</div>
-  </div>
+      <div class="menu-grid">
+        <button class="menu-card red" onclick="goPage('baram')">
+          <div class="icon">⚔️</div>
+          <strong>공바람</strong>
+          <span>5 대 5 팀 섞기</span>
+        </button>
 
-  <!-- 공바람 -->
-  <div id="gongbaram" class="page hidden">
-    <h2>공바람 5대5 팀 섞기</h2>
-    <div class="inputs" id="baramInputs"></div>
-    <button onclick="shuffleTeam('baramInputs','baramA','baramB',5)">팀 섞기</button>
-    <div class="result">
-      <div id="baramA"></div>
-      <div id="baramB"></div>
-    </div>
-  </div>
+        <button class="menu-card orange" onclick="goPage('watch')">
+          <div class="icon">🎯</div>
+          <strong>공버워치</strong>
+          <span>6 대 6 팀 섞기 & 맵 추첨기</span>
+        </button>
 
-  <!-- 공버워치 -->
-  <div id="gongwatch" class="page hidden">
-    <h2>공버워치 6대6 팀 섞기</h2>
+        <button class="menu-card green" onclick="goPage('chess')">
+          <div class="icon">♞</div>
+          <strong>공토체스</strong>
+          <span>4 대 4 팀 섞기 & 점수 계산기</span>
+        </button>
+      </div>
+    </section>
 
-    <div class="layout">
-      <div>
-        <div class="inputs" id="watchInputs"></div>
-        <button onclick="shuffleTeam('watchInputs','watchA','watchB',6)">팀 섞기</button>
-        <div class="result">
-          <div id="watchA"></div>
-          <div id="watchB"></div>
+    <!-- 공바람 -->
+    <section id="baram" class="page">
+      <PageHeader title="공바람"></PageHeader>
+      <div class="tool-page red-border">
+        <div class="top-bar">
+          <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
+          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+        </div>
+
+        <h2>⚔️ 공바람</h2>
+        <p class="sub">5 대 5 팀 섞기</p>
+
+        <div class="two-col">
+          <div class="panel">
+            <h3>5 대 5 팀 섞기 A</h3>
+            <p>최소 10명 입력 후 팀을 섞어주세요.</p>
+            <div id="baramAInputs" class="input-grid"></div>
+            <div class="btn-row">
+              <button class="main-btn red-bg" onclick="shuffleBasic('baramAInputs','baramAResult','레드','블루',5)">팀 섞기</button>
+              <button onclick="copyResult('baramAResult')">복사</button>
+              <button onclick="resetTool('baramAInputs','baramAResult')">초기화</button>
+            </div>
+            <div id="baramAResult" class="result-grid"></div>
+          </div>
+
+          <div class="panel">
+            <h3>5 대 5 팀 섞기 B</h3>
+            <p>두 번째 5 대 5 팀 섞기 메뉴입니다.</p>
+            <div id="baramBInputs" class="input-grid"></div>
+            <div class="btn-row">
+              <button class="main-btn red-bg" onclick="shuffleBasic('baramBInputs','baramBResult','레드','블루',5)">팀 섞기</button>
+              <button onclick="copyResult('baramBResult')">복사</button>
+              <button onclick="resetTool('baramBInputs','baramBResult')">초기화</button>
+            </div>
+            <div id="baramBResult" class="result-grid"></div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div>
-        <h3>맵 추첨기</h3>
-        <p class="mz">빨간 글씨는 MZ맵</p>
+    <!-- 공버워치 -->
+    <section id="watch" class="page">
+      <div class="tool-page orange-border">
+        <div class="top-bar">
+          <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
+          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+        </div>
 
-        <div id="mapList"></div>
+        <h2>🎯 공버워치</h2>
+        <p class="sub">6 대 6 팀 섞기 & 맵 추첨기</p>
 
-        <button onclick="drawMap()">맵 추첨하기</button>
-        <div id="mapResult"></div>
-      </div>
-    </div>
-  </div>
+        <div class="two-col">
+          <div class="panel">
+            <h3>6 대 6 팀 섞기</h3>
+            <p>12명을 입력 후 팀을 섞어주세요.</p>
+            <div id="watchInputs" class="input-grid"></div>
+            <div class="btn-row">
+              <button class="main-btn orange-bg" onclick="shuffleBasic('watchInputs','watchResult','팀 A','팀 B',6)">팀 섞기</button>
+              <button onclick="copyResult('watchResult')">복사</button>
+              <button onclick="resetTool('watchInputs','watchResult')">초기화</button>
+            </div>
+            <div id="watchResult" class="result-grid"></div>
+          </div>
 
-  <!-- 공토체스 -->
-  <div id="gongchess" class="page hidden">
-    <h2>공토체스 4대4 팀 섞기</h2>
+          <div class="panel">
+            <h3>맵 추첨기</h3>
+            <p>원하는 맵을 체크 후 추첨하세요.</p>
+            <p class="mz-title">빨간 글씨는 MZ맵</p>
 
-    <div class="layout">
-      <div>
-        <div class="inputs" id="chessInputs"></div>
-        <button onclick="shuffleTeam('chessInputs','chessA','chessB',4)">팀 섞기</button>
-        <div class="result">
-          <div id="chessA"></div>
-          <div id="chessB"></div>
+            <div id="mapBox" class="map-box"></div>
+
+            <button class="main-btn orange-bg full" onclick="drawMap()">맵 추첨하기</button>
+
+            <div class="picked-map">
+              <span>추첨된 맵</span>
+              <strong id="pickedMap">?</strong>
+            </div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div>
-        <h3>점수판</h3>
-        <div id="scoreBoard"></div>
+    <!-- 공토체스 -->
+    <section id="chess" class="page">
+      <div class="tool-page green-border">
+        <div class="top-bar">
+          <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
+          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+        </div>
+
+        <h2>♞ 공토체스</h2>
+        <p class="sub">4 대 4 팀 섞기 & 점수 계산기</p>
+
+        <div class="chess-layout">
+          <div class="panel">
+            <h3>4 대 4 팀 섞기</h3>
+            <p>8명을 입력 후 2개 팀으로 섞습니다.</p>
+            <div id="chessInputs" class="input-grid"></div>
+            <div class="btn-row">
+              <button class="main-btn green-bg" onclick="shuffleChess()">팀 섞기</button>
+              <button onclick="copyResult('chessResult')">복사</button>
+              <button onclick="resetChess()">초기화</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>팀 결과 & 점수</h3>
+            <div id="chessResult" class="chess-result"></div>
+            <div class="score-total">
+              <div>팀 A 합계: <strong id="teamAScore">0점</strong></div>
+              <div>팀 B 합계: <strong id="teamBScore">0점</strong></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>등수별 점수 설정</h3>
+            <div id="rankScores" class="rank-box"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-</div>
+  </main>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
