@@ -89,14 +89,35 @@ function resetTool(inputId, resultId) {
 }
 
 function copyResult(resultId) {
-  const text = document.getElementById(resultId).innerText.trim();
+  const resultBox = document.getElementById(resultId);
 
-  if (!text) {
+  if (!resultBox || !resultBox.innerText.trim()) {
     alert("복사할 결과가 없습니다.");
     return;
   }
 
-  navigator.clipboard.writeText(text);
+  const heads = [...resultBox.querySelectorAll(".team-result-head")]
+    .map(el => el.innerText.trim());
+
+  const names = [...resultBox.querySelectorAll(".result-name")]
+    .map(el => el.innerText.trim());
+
+  if (heads.length < 2 || names.length < 2) {
+    navigator.clipboard.writeText(resultBox.innerText.trim());
+    alert("복사되었습니다.");
+    return;
+  }
+
+  const leftTitle = heads[0];
+  const rightTitle = heads[1];
+
+  let copyText = `${leftTitle}\t${rightTitle}\n`;
+
+  for (let i = 0; i < names.length; i += 2) {
+    copyText += `${names[i] || ""}\t${names[i + 1] || ""}\n`;
+  }
+
+  navigator.clipboard.writeText(copyText.trim());
   alert("복사되었습니다.");
 }
 
