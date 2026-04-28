@@ -9,44 +9,42 @@
 <body>
   <main class="app">
 
-    <!-- 메인 -->
     <section id="home" class="page active">
-      <button class="theme-btn" onclick="toggleTheme()">🌙 다크모드</button>
+      <button class="theme-btn" onclick="toggleTheme()">☀️ 라이트모드</button>
 
       <div class="hero">
         <div class="mini-logo">BKG</div>
         <h1>BKG</h1>
+        <h2>게임을 즐기는 새로운 방법</h2>
         <p>원하는 메뉴를 선택해 바로 시작하세요.</p>
-      </div>
 
-      <div class="menu-grid">
-        <button class="menu-card red" onclick="goPage('baram')">
-          <div class="icon">⚔️</div>
-          <strong>공바람</strong>
-          <span>5 대 5 팀 섞기</span>
-        </button>
+        <div class="menu-grid">
+          <button class="menu-card red" onclick="goPage('baram')">
+            <div class="icon">⚔️</div>
+            <strong>공바람</strong>
+            <span>5 대 5 팀 섞기</span>
+          </button>
 
-        <button class="menu-card orange" onclick="goPage('watch')">
-          <div class="icon">🎯</div>
-          <strong>공버워치</strong>
-          <span>6 대 6 팀 섞기 & 맵 추첨기</span>
-        </button>
+          <button class="menu-card orange" onclick="goPage('watch')">
+            <div class="icon">🎯</div>
+            <strong>공버워치</strong>
+            <span>6 대 6 팀 섞기 & 맵 추첨기</span>
+          </button>
 
-        <button class="menu-card green" onclick="goPage('chess')">
-          <div class="icon">♞</div>
-          <strong>공토체스</strong>
-          <span>4 대 4 팀 섞기 & 점수 계산기</span>
-        </button>
+          <button class="menu-card green" onclick="goPage('chess')">
+            <div class="icon">♞</div>
+            <strong>공토체스</strong>
+            <span>4 대 4 팀 섞기 & 점수 계산기</span>
+          </button>
+        </div>
       </div>
     </section>
 
-    <!-- 공바람 -->
     <section id="baram" class="page">
-      <PageHeader title="공바람"></PageHeader>
       <div class="tool-page red-border">
         <div class="top-bar">
           <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
-          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+          <button class="theme-btn small" onclick="toggleTheme()">☀️ 라이트모드</button>
         </div>
 
         <h2>⚔️ 공바람</h2>
@@ -55,7 +53,7 @@
         <div class="two-col">
           <div class="panel">
             <h3>5 대 5 팀 섞기 A</h3>
-            <p>최소 10명 입력 후 팀을 섞어주세요.</p>
+            <p>10명을 입력 후 팀을 섞어주세요.</p>
             <div id="baramAInputs" class="input-grid"></div>
             <div class="btn-row">
               <button class="main-btn red-bg" onclick="shuffleBasic('baramAInputs','baramAResult','레드','블루',5)">팀 섞기</button>
@@ -67,7 +65,7 @@
 
           <div class="panel">
             <h3>5 대 5 팀 섞기 B</h3>
-            <p>두 번째 5 대 5 팀 섞기 메뉴입니다.</p>
+            <p>10명을 입력 후 팀을 섞어주세요.</p>
             <div id="baramBInputs" class="input-grid"></div>
             <div class="btn-row">
               <button class="main-btn red-bg" onclick="shuffleBasic('baramBInputs','baramBResult','레드','블루',5)">팀 섞기</button>
@@ -80,12 +78,11 @@
       </div>
     </section>
 
-    <!-- 공버워치 -->
     <section id="watch" class="page">
       <div class="tool-page orange-border">
         <div class="top-bar">
           <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
-          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+          <button class="theme-btn small" onclick="toggleTheme()">☀️ 라이트모드</button>
         </div>
 
         <h2>🎯 공버워치</h2>
@@ -122,12 +119,11 @@
       </div>
     </section>
 
-    <!-- 공토체스 -->
     <section id="chess" class="page">
       <div class="tool-page green-border">
         <div class="top-bar">
           <button onclick="goPage('home')" class="back-btn">← 홈으로</button>
-          <button class="theme-btn small" onclick="toggleTheme()">🌙 다크모드</button>
+          <button class="theme-btn small" onclick="toggleTheme()">☀️ 라이트모드</button>
         </div>
 
         <h2>♞ 공토체스</h2>
