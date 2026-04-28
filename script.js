@@ -1,10 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  onValue
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfxJeko53d10OcJZps3my5Fm7XF_2fDtc",
@@ -21,10 +16,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 function goPage(id) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
-
+  document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   window.scrollTo(0, 0);
 }
@@ -43,9 +35,19 @@ function makeInputs(id, count) {
   box.innerHTML = "";
 
   for (let i = 1; i <= count; i++) {
-    const input = document.createElement("input");
-    input.placeholder = `플레이어 ${i}`;
-    box.appendChild(input);
+    const slot = document.createElement("div");
+    slot.className = "player-slot";
+
+    slot.innerHTML = `
+      <input class="player-name" placeholder="플레이어 ${i}">
+      <select class="player-role">
+        <option value="탱커">탱커</option>
+        <option value="딜러">딜러</option>
+        <option value="힐러">힐러</option>
+      </select>
+    `;
+
+    box.appendChild(slot);
   }
 }
 
@@ -55,33 +57,40 @@ makeInputs("watchInputs", 12);
 makeInputs("chessInputs", 8);
 
 function makeFixedRowTeams(inputId, teamSize) {
-  const inputs = [...document.querySelectorAll(`#${inputId} input`)];
-  const names = inputs.map(input => input.value.trim()).filter(Boolean);
+  const slots = [...document.querySelectorAll(`#${inputId} .player-slot`)];
 
-  if (names.length !== teamSize * 2) {
+  const filled = slots.filter(slot => slot.querySelector(".player-name").value.trim());
+
+  if (filled.length !== teamSize * 2) {
     alert(`${teamSize * 2}명을 모두 입력해야 합니다.`);
     return null;
   }
 
   const rows = [];
 
-  for (let i = 0; i < inputs.length; i += 2) {
-    const left = inputs[i].value.trim();
-    const right = inputs[i + 1].value.trim();
+  for (let i = 0; i < slots.length; i += 2) {
+    const leftName = slots[i].querySelector(".player-name").value.trim();
+    const leftRole = slots[i].querySelector(".player-role").value;
+    const rightName = slots[i + 1].querySelector(".player-name").value.trim();
+    const rightRole = slots[i + 1].querySelector(".player-role").value;
 
-    if (!left || !right) {
+    if (!leftName || !rightName) {
       alert("모든 줄의 좌우 플레이어를 입력해야 합니다.");
       return null;
     }
 
-    if (Math.random() < 0.5) {
-      rows.push([left, right]);
-    } else {
-      rows.push([right, left]);
-    }
+    const left = { name: leftName, role: leftRole };
+    const right = { name: rightName, role: rightRole };
+
+    rows.push(Math.random() < 0.5 ? [left, right] : [right, left]);
   }
 
   return rows;
+}
+
+function displayPlayer(player) {
+  if (typeof player === "string") return player;
+  return `${player.name} (${player.role})`;
 }
 
 function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
@@ -92,20 +101,17 @@ function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
     <div class="team-result-table">
       <div class="team-result-head">${teamAName}</div>
       <div class="team-result-head">${teamBName}</div>
-
       ${rows.map(row => `
-        <div class="result-name">${row[0]}</div>
-        <div class="result-name">${row[1]}</div>
+        <div class="result-name">${displayPlayer(row[0])}</div>
+        <div class="result-name">${displayPlayer(row[1])}</div>
       `).join("")}
     </div>
   `;
 }
 
 function resetTool(inputId, resultId) {
-  document.querySelectorAll(`#${inputId} input`).forEach(input => {
-    input.value = "";
-  });
-
+  document.querySelectorAll(`#${inputId} .player-name`).forEach(input => input.value = "");
+  document.querySelectorAll(`#${inputId} .player-role`).forEach(select => select.value = "탱커");
   document.getElementById(resultId).innerHTML = "";
 }
 
@@ -117,11 +123,8 @@ function copyResult(resultId) {
     return;
   }
 
-  const heads = [...resultBox.querySelectorAll(".team-result-head")]
-    .map(el => el.innerText.trim());
-
-  const names = [...resultBox.querySelectorAll(".result-name")]
-    .map(el => el.innerText.trim());
+  const heads = [...resultBox.querySelectorAll(".team-result-head")].map(el => el.innerText.trim());
+  const names = [...resultBox.querySelectorAll(".result-name")].map(el => el.innerText.trim());
 
   if (heads.length >= 2 && names.length >= 2) {
     let copyText = `${heads[0]}\t${heads[1]}\n`;
@@ -135,8 +138,7 @@ function copyResult(resultId) {
     return;
   }
 
-  const chessInputs = [...resultBox.querySelectorAll(".player-rank input")]
-    .map(input => input.value.trim());
+  const chessInputs = [...resultBox.querySelectorAll(".player-rank input")].map(input => input.value.trim());
 
   if (heads.length >= 2 && chessInputs.length >= 2) {
     let copyText = `${heads[0]}\t${heads[1]}\n`;
@@ -185,7 +187,6 @@ function renderMaps() {
           ${category}
         </label>
       </h4>
-
       <div class="map-items">
         ${list.map(map => `
           <label>
@@ -197,7 +198,6 @@ function renderMaps() {
     `;
 
     const categoryCheck = wrap.querySelector(".category-check");
-
     categoryCheck.addEventListener("change", () => {
       wrap.querySelectorAll(".map-check").forEach(check => {
         check.checked = categoryCheck.checked;
@@ -211,8 +211,7 @@ function renderMaps() {
 renderMaps();
 
 function drawMap() {
-  const checked = [...document.querySelectorAll(".map-check:checked")]
-    .map(input => input.value);
+  const checked = [...document.querySelectorAll(".map-check:checked")].map(input => input.value);
 
   if (checked.length === 0) {
     alert("추첨할 맵을 최소 1개 이상 선택해주세요.");
@@ -251,12 +250,7 @@ function renderRankScores() {
 
     row.innerHTML = `
       <strong>${i}등</strong>
-      <input
-        type="number"
-        id="rankScore${i}"
-        value="${chessRankScores[i] ?? defaultRankScore[i]}"
-        oninput="saveRankScores()"
-      >
+      <input type="number" id="rankScore${i}" value="${chessRankScores[i] ?? defaultRankScore[i]}" oninput="saveRankScores()">
       <span>점</span>
     `;
 
@@ -299,25 +293,21 @@ function renderChessResult() {
 
       ${chessRows.map((row, rowIndex) => `
         <div class="player-rank">
-          <input value="${row[0]}" readonly>
+          <input value="${displayPlayer(row[0])}" readonly>
           <select data-team="A" data-row="${rowIndex}" onchange="saveChessRank(this)">
             <option value="">-</option>
             ${[1,2,3,4,5,6,7,8].map(rank => `
-              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.A || "") === String(rank) ? "selected" : ""}>
-                ${rank}등
-              </option>
+              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.A || "") === String(rank) ? "selected" : ""}>${rank}등</option>
             `).join("")}
           </select>
         </div>
 
         <div class="player-rank">
-          <input value="${row[1]}" readonly>
+          <input value="${displayPlayer(row[1])}" readonly>
           <select data-team="B" data-row="${rowIndex}" onchange="saveChessRank(this)">
             <option value="">-</option>
             ${[1,2,3,4,5,6,7,8].map(rank => `
-              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.B || "") === String(rank) ? "selected" : ""}>
-                ${rank}등
-              </option>
+              <option value="${rank}" ${String(chessRanks?.[rowIndex]?.B || "") === String(rank) ? "selected" : ""}>${rank}등</option>
             `).join("")}
           </select>
         </div>
@@ -329,11 +319,7 @@ function renderChessResult() {
 }
 
 function saveChessRank(select) {
-  const row = select.dataset.row;
-  const team = select.dataset.team;
-  const value = select.value;
-
-  set(ref(db, `gongchess/ranks/${row}/${team}`), value);
+  set(ref(db, `gongchess/ranks/${select.dataset.row}/${select.dataset.team}`), select.value);
 }
 
 function calculateChessScore() {
@@ -357,9 +343,8 @@ function calculateChessScore() {
 }
 
 function resetChess() {
-  document.querySelectorAll("#chessInputs input").forEach(input => {
-    input.value = "";
-  });
+  document.querySelectorAll("#chessInputs .player-name").forEach(input => input.value = "");
+  document.querySelectorAll("#chessInputs .player-role").forEach(select => select.value = "탱커");
 
   set(ref(db, "gongchess/rows"), []);
   set(ref(db, "gongchess/ranks"), {});
