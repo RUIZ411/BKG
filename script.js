@@ -30,34 +30,41 @@ function toggleTheme() {
   });
 }
 
-function makeInputs(id, count) {
+function makeInputs(id, count, withRole = false) {
   const box = document.getElementById(id);
   box.innerHTML = "";
 
   for (let i = 1; i <= count; i++) {
     const slot = document.createElement("div");
-    slot.className = "player-slot";
+    slot.className = withRole ? "player-slot" : "plain-player-slot";
 
-    slot.innerHTML = `
-      <input class="player-name" placeholder="플레이어 ${i}">
-      <select class="player-role">
-        <option value="탱커">탱커</option>
-        <option value="딜러">딜러</option>
-        <option value="힐러">힐러</option>
-      </select>
-    `;
+    if (withRole) {
+      slot.innerHTML = `
+        <input class="player-name" placeholder="플레이어 ${i}">
+        <select class="player-role">
+          <option value="탱커">탱커</option>
+          <option value="딜러">딜러</option>
+          <option value="힐러">힐러</option>
+        </select>
+      `;
+    } else {
+      slot.innerHTML = `
+        <input class="player-name" placeholder="플레이어 ${i}">
+      `;
+    }
 
     box.appendChild(slot);
   }
 }
 
-makeInputs("baramAInputs", 10);
-makeInputs("baramBInputs", 10);
-makeInputs("watchInputs", 12);
-makeInputs("chessInputs", 8);
+makeInputs("baramAInputs", 10, false);
+makeInputs("baramBInputs", 10, false);
+makeInputs("watchInputs", 12, true);
+makeInputs("chessInputs", 8, false);
 
 function makeFixedRowTeams(inputId, teamSize) {
-  const slots = [...document.querySelectorAll(`#${inputId} .player-slot`)];
+  const slots = [...document.querySelectorAll(`#${inputId} .player-name`)]
+    .map(input => input.closest(".player-slot, .plain-player-slot"));
 
   const filled = slots.filter(slot => slot.querySelector(".player-name").value.trim());
 
@@ -70,9 +77,10 @@ function makeFixedRowTeams(inputId, teamSize) {
 
   for (let i = 0; i < slots.length; i += 2) {
     const leftName = slots[i].querySelector(".player-name").value.trim();
-    const leftRole = slots[i].querySelector(".player-role").value;
+    const leftRole = slots[i].querySelector(".player-role")?.value || "";
+
     const rightName = slots[i + 1].querySelector(".player-name").value.trim();
-    const rightRole = slots[i + 1].querySelector(".player-role").value;
+    const rightRole = slots[i + 1].querySelector(".player-role")?.value || "";
 
     if (!leftName || !rightName) {
       alert("모든 줄의 좌우 플레이어를 입력해야 합니다.");
@@ -90,7 +98,7 @@ function makeFixedRowTeams(inputId, teamSize) {
 
 function displayPlayer(player) {
   if (typeof player === "string") return player;
-  return `${player.name} (${player.role})`;
+  return player.role ? `${player.name} (${player.role})` : player.name;
 }
 
 function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
@@ -198,6 +206,7 @@ function renderMaps() {
     `;
 
     const categoryCheck = wrap.querySelector(".category-check");
+
     categoryCheck.addEventListener("change", () => {
       wrap.querySelectorAll(".map-check").forEach(check => {
         check.checked = categoryCheck.checked;
@@ -344,7 +353,6 @@ function calculateChessScore() {
 
 function resetChess() {
   document.querySelectorAll("#chessInputs .player-name").forEach(input => input.value = "");
-  document.querySelectorAll("#chessInputs .player-role").forEach(select => select.value = "탱커");
 
   set(ref(db, "gongchess/rows"), []);
   set(ref(db, "gongchess/ranks"), {});
