@@ -245,6 +245,12 @@ body.light .panel {
   margin-top: 20px;
 }
 
+.player-slot {
+  display: grid;
+  grid-template-columns: 1fr 86px;
+  gap: 8px;
+}
+
 input,
 select {
   width: 100%;
@@ -256,9 +262,26 @@ select {
   outline: none;
 }
 
+.player-role {
+  padding: 13px 8px;
+  font-weight: 900;
+  text-align: center;
+  cursor: pointer;
+}
+
 body.light input,
 body.light select {
   background: #fff;
+}
+
+select option {
+  background: #111827;
+  color: #ffffff;
+}
+
+body.light select option {
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .btn-row {
@@ -295,23 +318,6 @@ body.light select {
   gap: 14px;
 }
 
-.team-box {
-  min-height: 150px;
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(15,23,42,.35);
-  border: 1px solid rgba(148,163,184,.25);
-  line-height: 1.9;
-}
-
-body.light .team-box {
-  background: #f8fafc;
-}
-
-.team-box h4 {
-  margin: 0 0 10px;
-}
-
 .team-result-table,
 .chess-result-table {
   grid-column: 1 / -1;
@@ -343,7 +349,6 @@ body.light .result-name {
   background: #fff;
 }
 
-/* 공버워치 맵 추첨기 */
 .map-box {
   display: flex;
   flex-direction: column;
@@ -351,20 +356,6 @@ body.light .result-name {
   max-height: none;
   overflow: visible;
   padding: 4px 0 10px 0;
-}
-
-.map-box::-webkit-scrollbar {
-  width: 8px;
-}
-
-.map-box::-webkit-scrollbar-track {
-  background: rgba(255,255,255,.04);
-  border-radius: 999px;
-}
-
-.map-box::-webkit-scrollbar-thumb {
-  background: rgba(249,115,22,.65);
-  border-radius: 999px;
 }
 
 .map-category {
@@ -377,47 +368,12 @@ body.light .result-name {
     linear-gradient(135deg, rgba(249,115,22,.10), transparent 34%),
     rgba(15,23,42,.58);
   border: 1px solid rgba(148,163,184,.22);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
-  transition: transform .2s ease, border-color .2s ease, background .2s ease;
-}
-
-.map-category:hover {
-  transform: translateY(-2px);
-  border-color: rgba(249,115,22,.48);
-  background:
-    linear-gradient(135deg, rgba(249,115,22,.16), transparent 34%),
-    rgba(15,23,42,.68);
-}
-
-body.light .map-category {
-  background:
-    linear-gradient(135deg, rgba(249,115,22,.12), transparent 35%),
-    rgba(255,255,255,.9);
-  border-color: rgba(249,115,22,.22);
-  color: #0f172a;
-}
-
-body.light .map-category:hover {
-  border-color: rgba(249,115,22,.5);
 }
 
 .map-category h4 {
   margin: 0 0 14px;
   font-size: 18px;
   font-weight: 900;
-}
-
-.map-category h4 label {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  cursor: pointer;
-}
-
-.map-category h4 input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: #f97316;
 }
 
 .map-items {
@@ -451,7 +407,6 @@ body.light .map-category:hover {
   color: #f8fafc;
   font-size: 15px;
   font-weight: 900;
-  transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
 
 .map-items span::before {
@@ -468,16 +423,8 @@ body.light .map-category:hover {
   font-weight: 900;
 }
 
-.map-items label:hover span {
-  transform: translateY(-2px);
-  border-color: rgba(96,165,250,.8);
-  box-shadow: 0 8px 20px rgba(0,0,0,.18);
-}
-
 .map-items input[type="checkbox"]:not(:checked) + span {
   opacity: .42;
-  background: rgba(255,255,255,.025);
-  border-color: rgba(148,163,184,.18);
   text-decoration: line-through;
 }
 
@@ -487,30 +434,10 @@ body.light .map-category:hover {
   border: 1px solid rgba(148,163,184,.55);
 }
 
-body.light .map-items span {
-  background: rgba(255,255,255,.84);
-  color: #0f172a;
-  border-color: rgba(37,99,235,.24);
-}
-
-body.light .map-items input[type="checkbox"]:not(:checked) + span {
-  background: rgba(15,23,42,.04);
-  color: #64748b;
-}
-
 .mz-map {
   color: #ff4d4d !important;
   background: rgba(239,68,68,.10) !important;
   border-color: rgba(239,68,68,.42) !important;
-}
-
-.mz-map::before {
-  background: #ef4444 !important;
-}
-
-.map-items input[type="checkbox"]:not(:checked) + .mz-map {
-  color: #ef4444 !important;
-  opacity: .38;
 }
 
 .mz-title {
@@ -577,16 +504,6 @@ body.light .map-items input[type="checkbox"]:not(:checked) + span {
   gap: 8px;
 }
 
-select option {
-  background: #111827;
-  color: #ffffff;
-}
-
-body.light select option {
-  background: #ffffff;
-  color: #0f172a;
-}
-
 @media (max-width: 900px) {
   .menu-grid,
   .two-col,
@@ -605,5 +522,9 @@ body.light select option {
 
   .hero h1 {
     letter-spacing: -8px;
+  }
+
+  .player-slot {
+    grid-template-columns: 1fr;
   }
 }
