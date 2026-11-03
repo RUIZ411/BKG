@@ -62,6 +62,44 @@ makeInputs("baramBInputs", 10, false);
 makeInputs("watchInputs", 12, true);
 makeInputs("chessInputs", 8, false);
 
+function pastePlayers(textareaId, inputId) {
+  const textarea = document.getElementById(textareaId);
+  const raw = textarea.value.trim();
+
+  if (!raw) {
+    alert("붙여넣을 이름을 먼저 입력해주세요.");
+    return;
+  }
+
+  const lines = raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  let names = [];
+
+  // 스프레드시트의 탭 구분, 쉼표/파이프, 두 칸 이상 공백 및 한 줄에 두 이름을 쓴 형식을 지원합니다.
+  for (const line of lines) {
+    let pair;
+    if (line.includes("\t")) pair = line.split("\t");
+    else if (line.includes("|")) pair = line.split("|");
+    else if (line.includes(",")) pair = line.split(",");
+    else if (/\s{2,}/.test(line)) pair = line.split(/\s{2,}/);
+    else {
+      const words = line.split(/\s+/);
+      pair = words.length === 2 ? words : [line];
+    }
+    names.push(...pair.map(name => name.trim()).filter(Boolean));
+  }
+
+  if (names.length !== 10) {
+    alert(`이름은 정확히 10명이어야 합니다. 현재 ${names.length}명이 확인되었습니다.\n한 줄에 두 명씩 입력하거나, 이름을 줄바꿈으로 구분해주세요.`);
+    return;
+  }
+
+  const inputs = [...document.querySelectorAll(`#${inputId} .player-name`)];
+  inputs.forEach((input, index) => {
+    input.value = names[index];
+  });
+  alert("10명의 이름을 입력했습니다.");
+}
+
 function makeFixedRowTeams(inputId, teamSize) {
   const slots = [...document.querySelectorAll(`#${inputId} .player-name`)]
     .map(input => input.closest(".player-slot, .plain-player-slot"));
@@ -107,8 +145,6 @@ function shuffleBasic(inputId, resultId, teamAName, teamBName, teamSize) {
 
   document.getElementById(resultId).innerHTML = `
     <div class="team-result-table">
-      <div class="team-result-head">${teamAName}</div>
-      <div class="team-result-head">${teamBName}</div>
       ${rows.map(row => `
         <div class="result-name">${displayPlayer(row[0])}</div>
         <div class="result-name">${displayPlayer(row[1])}</div>
@@ -134,8 +170,8 @@ function copyResult(resultId) {
   const heads = [...resultBox.querySelectorAll(".team-result-head")].map(el => el.innerText.trim());
   const names = [...resultBox.querySelectorAll(".result-name")].map(el => el.innerText.trim());
 
-  if (heads.length >= 2 && names.length >= 2) {
-    let copyText = `${heads[0]}\t${heads[1]}\n`;
+  if (names.length >= 2) {
+    let copyText = heads.length >= 2 ? `${heads[0]}\t${heads[1]}\n` : "";
 
     for (let i = 0; i < names.length; i += 2) {
       copyText += `${names[i] || ""}\t${names[i + 1] || ""}\n`;
@@ -379,6 +415,7 @@ onValue(ref(db, "gongchess/rankScores"), snapshot => {
 window.goPage = goPage;
 window.toggleTheme = toggleTheme;
 window.shuffleBasic = shuffleBasic;
+window.pastePlayers = pastePlayers;
 window.resetTool = resetTool;
 window.copyResult = copyResult;
 window.drawMap = drawMap;
