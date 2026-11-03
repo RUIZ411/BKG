@@ -97,7 +97,6 @@ function pastePlayers(textareaId, inputId) {
   inputs.forEach((input, index) => {
     input.value = names[index];
   });
-  alert("10명의 이름을 입력했습니다.");
 }
 
 function makeFixedRowTeams(inputId, teamSize) {
@@ -178,7 +177,6 @@ function copyResult(resultId) {
     }
 
     navigator.clipboard.writeText(copyText.trim());
-    alert("복사되었습니다.");
     return;
   }
 
@@ -192,12 +190,10 @@ function copyResult(resultId) {
     }
 
     navigator.clipboard.writeText(copyText.trim());
-    alert("복사되었습니다.");
     return;
   }
 
   navigator.clipboard.writeText(resultBox.innerText.trim());
-  alert("복사되었습니다.");
 }
 
 const maps = {
